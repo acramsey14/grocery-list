@@ -11,9 +11,25 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:to_dont_list/main.dart';
 import 'package:to_dont_list/objects/item.dart';
 import 'package:to_dont_list/widgets/to_do_items.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import "dart:convert";
 
 void main() {
+  setUp(() =>
+      SharedPreferences.setMockInitialValues({})); // first line inside main()
   // Yes, you really need the MaterialApp and Scaffold
+  testWidgets('Saved items are loaded when the app starts', (tester) async {
+    SharedPreferences.setMockInitialValues({
+      'groceries': jsonEncode([
+        {'name': 'eggs', 'quantity': 12, 'done': false}
+      ]),
+    });
+    await tester.pumpWidget(const MaterialApp(home: ToDoList()));
+    await tester.pumpAndSettle();
+
+    expect(find.text('eggs'), findsOneWidget);
+    expect(find.text('12'), findsOneWidget);
+  });
   testWidgets('ToDoListItem has a text', (tester) async {
     await tester.pumpWidget(MaterialApp(
         home: Scaffold(
@@ -81,8 +97,9 @@ void main() {
     expect(listItemFinder, findsNWidgets(2));
   });
 
-
-  testWidgets('Increment and Decrement buttons add to and subtract from quantity', (tester) async{
+  testWidgets(
+      'Increment and Decrement buttons add to and subtract from quantity',
+      (tester) async {
     await tester.pumpWidget(const MaterialApp(home: ToDoList()));
 
     await tester.tap(find.byKey(const Key("Increment")));
@@ -92,7 +109,6 @@ void main() {
     await tester.tap(find.byKey(const Key("Decrement")));
     await tester.pump();
     expect(find.text("1"), findsOneWidget);
-
   });
   // One to test the tap and press actions on the items?
 }

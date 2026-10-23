@@ -1,5 +1,8 @@
 // Started with https://docs.flutter.dev/development/ui/widgets-intro
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:to_dont_list/objects/item.dart';
 import 'package:to_dont_list/widgets/to_do_items.dart';
 import 'package:to_dont_list/widgets/to_do_dialog.dart';
@@ -14,6 +17,41 @@ class ToDoList extends StatefulWidget {
 class _ToDoListState extends State<ToDoList> {
   final List<GroceryItem> items = [GroceryItem(name: "add more groceries")];
   final _itemSet = <GroceryItem>{};
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  // Load the saved list (if any) when the app starts
+  Future<void> _load() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getString('groceries');
+    if (saved == null) return; // first launch: keep the default item
+    setState(() {
+      items.clear();
+      _itemSet.clear();
+      for (final m in jsonDecode(saved)) {
+        final item = GroceryItem(name: m['name'], quantity: m['quantity']);
+        items.add(item);
+        if (m['done'] == true) _itemSet.add(item);
+      }
+    });
+  }
+
+  // Save the whole list after any change so it survives closing the app
+  Future<void> _save() async {
+    final prefs = await SharedPreferences.getInstance();
+    final data = items
+        .map((i) => {
+              'name': i.name,
+              'quantity': i.quantity,
+              'done': _itemSet.contains(i),
+            })
+        .toList();
+    await prefs.setString('groceries', jsonEncode(data));
+  }
 
   void _handleListChanged(GroceryItem item, bool completed) {
     setState(() {
@@ -34,6 +72,7 @@ class _ToDoListState extends State<ToDoList> {
         items.insert(0, item);
       }
     });
+    _save();
   }
 
   void _handleDeleteItem(GroceryItem item) {
@@ -41,6 +80,7 @@ class _ToDoListState extends State<ToDoList> {
       print("Deleting item");
       items.remove(item);
     });
+    _save();
   }
 
   void _handleNewItem(String itemText, TextEditingController textController) {
@@ -51,6 +91,7 @@ class _ToDoListState extends State<ToDoList> {
       items.insert(0, item);
       textController.clear();
     });
+    _save();
   }
 
   @override
@@ -67,6 +108,7 @@ class _ToDoListState extends State<ToDoList> {
               completed: _itemSet.contains(item),
               onListChanged: _handleListChanged,
               onDeleteItem: _handleDeleteItem,
+              // onQuantityChanged: _save,   // <-- uncomment in commit 3
             );
           }).toList(),
         ),
