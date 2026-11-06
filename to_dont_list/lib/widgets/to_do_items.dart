@@ -48,11 +48,11 @@ class _GroceryListItemState extends State<GroceryListItem> {
       onTap: () {
         widget.onListChanged(widget.item, widget.completed);
       },
-      onLongPress: widget.completed
+      /*onLongPress: widget.completed
           ? () {
               widget.onDeleteItem(widget.item);
             }
-          : null,
+          : null,*/
       leading: CircleAvatar(
         backgroundColor: widget._getColor(context),
         child: Text(widget.item.quantity.toString()),
@@ -71,7 +71,15 @@ class _GroceryListItemState extends State<GroceryListItem> {
             },child: const Text('+'),),
           ElevatedButton(key: const Key("Decrement"), onPressed: (){
             setState((){widget.item.decrement();});
+            //if item quantity reaches 0 it is deleted
+            if (widget.item.quantity == 0){
+                setState((){widget.onDeleteItem(widget.item);});
+            }
             }, child: const Text('-')),
+          //delete item buttom
+          ElevatedButton(key: const Key("Remove"), onPressed: (){
+            setState((){widget.onDeleteItem(widget.item);});
+            },child: const Text('Remove'),),
         ],
       ),
     );
