@@ -73,7 +73,9 @@ void main() {
     // Use the `findsOneWidget` matcher provided by flutter_test to verify
     // that the Text widgets appear exactly once in the widget tree.
     expect(quantityFinder, findsOneWidget);
-    expect(circ.backgroundColor, Colors.black54);
+    expect(circ.backgroundColor,
+  Theme.of(tester.element(avatarFinder))
+      .colorScheme.onSurfaceVariant,);
     expect(ctext.data, "1");
   });
 

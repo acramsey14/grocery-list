@@ -133,8 +133,17 @@ class _ToDoListState extends State<ToDoList> {
 }
 
 void main() {
-  runApp(const MaterialApp(
-    title: 'To Do List',
-    home: ToDoList(),
-  ));
+  runApp(
+    MaterialApp(
+      // Added a central color scheme for consistent app colors
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.teal,
+        ),
+        useMaterial3: true,
+      ),
+      title: 'To Do List',
+      home: const ToDoList(),
+    ),
+  );
 }

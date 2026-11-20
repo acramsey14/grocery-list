@@ -30,15 +30,16 @@ class GroceryListItem extends StatefulWidget {
     // taking place and therefore which theme to use.
 
     return completed //
-        ? Colors.black54
-        : Colors.lightBlue;
+        ? Theme.of(context).colorScheme.onSurfaceVariant
+        : Theme.of(context).colorScheme.primary;
   }
 
   TextStyle? _getTextStyle(BuildContext context) {
     if (!completed) return null;
-
-    return const TextStyle(
-      color: Colors.black,
+// Use the theme's text color for completed items
+// while keeping the strikethrough style.
+    return TextStyle(
+      color: Theme.of(context).colorScheme.onSurface,
       decoration: TextDecoration.lineThrough,
     );
   }
